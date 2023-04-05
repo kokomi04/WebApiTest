@@ -25,10 +25,7 @@ namespace WebApiTest.Migrations
             modelBuilder.Entity("WebApiTest.Entities.Product", b =>
                 {
                     b.Property<int>("ProductId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -42,10 +39,7 @@ namespace WebApiTest.Migrations
             modelBuilder.Entity("WebApiTest.Entities.ProductDetail", b =>
                 {
                     b.Property<int>("ProductDetailId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductDetailId"));
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -53,7 +47,7 @@ namespace WebApiTest.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<string>("ProductPropertyName")
+                    b.Property<string>("ProductDetailName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -73,10 +67,7 @@ namespace WebApiTest.Migrations
             modelBuilder.Entity("WebApiTest.Entities.ProductDetailPropertyDetail", b =>
                 {
                     b.Property<int>("ProductDetailPropertyDetailId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductDetailPropertyDetailId"));
 
                     b.Property<int>("ProductDetailId")
                         .HasColumnType("int");
@@ -101,10 +92,7 @@ namespace WebApiTest.Migrations
             modelBuilder.Entity("WebApiTest.Entities.Property", b =>
                 {
                     b.Property<int>("PropertyId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PropertyId"));
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -113,7 +101,7 @@ namespace WebApiTest.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Sort")
+                    b.Property<int>("PropertySort")
                         .HasColumnType("int");
 
                     b.HasKey("PropertyId");
@@ -126,10 +114,7 @@ namespace WebApiTest.Migrations
             modelBuilder.Entity("WebApiTest.Entities.PropertyDetail", b =>
                 {
                     b.Property<int>("PropertyDetailId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PropertyDetailId"));
 
                     b.Property<string>("PropertyDetailCode")
                         .IsRequired()

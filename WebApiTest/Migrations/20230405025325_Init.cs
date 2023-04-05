@@ -14,9 +14,8 @@ namespace WebApiTest.Migrations
                 name: "ProductDetails",
                 columns: table => new
                 {
-                    ProductDetailId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductPropertyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductDetailId = table.Column<int>(type: "int", nullable: false),
+                    ProductDetailName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
                     ShellPrice = table.Column<float>(type: "real", nullable: false),
@@ -36,8 +35,7 @@ namespace WebApiTest.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -49,11 +47,10 @@ namespace WebApiTest.Migrations
                 name: "Properties",
                 columns: table => new
                 {
-                    PropertyId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     PropertyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sort = table.Column<int>(type: "int", nullable: false)
+                    PropertySort = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -70,8 +67,7 @@ namespace WebApiTest.Migrations
                 name: "PropertyDetails",
                 columns: table => new
                 {
-                    PropertyDetailId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PropertyDetailId = table.Column<int>(type: "int", nullable: false),
                     PropertyId = table.Column<int>(type: "int", nullable: false),
                     PropertyDetailCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PropertyDetailDetail = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -91,8 +87,7 @@ namespace WebApiTest.Migrations
                 name: "ProductDetailPropertyDetails",
                 columns: table => new
                 {
-                    ProductDetailPropertyDetailId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductDetailPropertyDetailId = table.Column<int>(type: "int", nullable: false),
                     ProductDetailId = table.Column<int>(type: "int", nullable: false),
                     PropertyDetailId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: true)
