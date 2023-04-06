@@ -12,7 +12,7 @@ namespace WebApiTest.Entities
     public class ProductDetailPropertyDetail
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int ProductDetailPropertyDetailId { get; set; }
         public int ProductDetailId { get; set; }
         public int PropertyDetailId { get; set; }
