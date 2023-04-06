@@ -15,12 +15,36 @@ namespace WebApiTest.Controllers
             _services = services;
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> BuyProduct(BuyProductRequest request)
+        [HttpPut("buy")]
+        public async Task<IActionResult> BuyProduct(ProductDetailRequest request)
         {
-            var kq = await _services.BuyProduct(request);
-            return Ok(kq);
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (await _services.BuyProduct(request) == 0)
+                return BadRequest();
+            return Ok("Mua thanh cong!");
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateQuantity(ProductDetailRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (await _services.UpdateQuantity(request) == 0)
+                return BadRequest();
+            return Ok("Cap nhat thanh cong!");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductDetails()
+        {
+            var productDetails = _services.GetProductDetails();
+
+            return Ok(productDetails);
         }
     }
 }
