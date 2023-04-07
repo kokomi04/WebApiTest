@@ -12,11 +12,7 @@ using WebApiTest.EF;
 namespace WebApiTest.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-<<<<<<< HEAD:WebApiTest/Migrations/20230405025325_Init.Designer.cs
-    [Migration("20230405025325_Init")]
-=======
-    [Migration("20230405122806_Init")]
->>>>>>> e80bea91ff12b89a6e91339454323c5d64f9b311:WebApiTest/Migrations/20230405122806_Init.Designer.cs
+    [Migration("20230407024915_Init")]
     partial class Init
     {
         /// <inheritdoc />

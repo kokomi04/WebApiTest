@@ -133,22 +133,23 @@ namespace WebApiTest.Services
             return await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<ProductDetail>> GetProductDetails()
+        public async Task<IEnumerable<ProductDetail>> GetProductDetails()
         {
-            var parentProductDetails = _context.ProductDetails.Where(x => x.ParentId == null);
+            var parentProductDetails = _context.ProductDetails.Where(x => x.ParentId != null).ToList();
+
             var productDetails = new List<ProductDetail>();
-            //do
-            //{
-            //    foreach (var item in parentProductDetails)
-            //    {
-            //        var pds = _context.ProductDetails.Where(x => x.ParentId == item.ProductDetailId);
-            //        productDetails.AddRange(pds);
-            //    }
-            //}while(pds!=null);
 
-            //var pds = _context.ProductDetails.Include(x=>x.Parent).ToList();
+            if (parentProductDetails.Count() > 0)
+                foreach (var item in parentProductDetails)
+                {
+                    var pd = parentProductDetails.Find(x => x.ParentId == item.ProductDetailId);
+                    if (pd == null)
+                    {
+                        productDetails.Add(item);
+                    }
+                }
 
-            return null;
+            return productDetails;
         }
     }
 }

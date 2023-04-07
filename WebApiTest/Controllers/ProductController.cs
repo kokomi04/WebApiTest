@@ -43,7 +43,8 @@ namespace WebApiTest.Controllers
         public async Task<IActionResult> GetProductDetails()
         {
             var productDetails = _services.GetProductDetails();
-
+            if (productDetails == null)
+                return BadRequest("Danh sach trong");
             return Ok(productDetails);
         }
     }
