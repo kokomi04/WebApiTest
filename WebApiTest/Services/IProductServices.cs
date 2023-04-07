@@ -1,9 +1,12 @@
-﻿using WebApiTest.ViewModels;
+﻿using WebApiTest.Entities;
+using WebApiTest.ViewModels;
 
 namespace WebApiTest.Services
 {
     public interface IProductServices
     {
-        Task<int> BuyProduct(BuyProductRequest request);
+        Task<int> BuyProduct(ProductDetailRequest request);
+        Task<int> UpdateQuantity(ProductDetailRequest request);
+        Task<IEnumerable<ProductDetail>> GetProductDetails();
     }
 }
