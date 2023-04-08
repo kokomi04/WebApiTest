@@ -40,9 +40,9 @@ namespace WebApiTest.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProductDetails()
+        public async Task<IActionResult> GetProductDetails([FromQuery]ProductPagingRequest request)
         {
-            var productDetails = _services.GetProductDetails();
+            var productDetails = await _services.GetProductDetails(request);
             if (productDetails == null)
                 return BadRequest("Danh sach trong");
             return Ok(productDetails);

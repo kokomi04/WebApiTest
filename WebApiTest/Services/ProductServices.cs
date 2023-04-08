@@ -2,6 +2,7 @@
 using WebApiTest.EF;
 using WebApiTest.Entities;
 using WebApiTest.ViewModels;
+using WebApiTest.ViewModels.PagingCommon;
 
 namespace WebApiTest.Services
 {
@@ -15,141 +16,174 @@ namespace WebApiTest.Services
         }
         public async Task<int> BuyProduct(ProductDetailRequest request)
         {
-            if (!_context.Products.Any(x => x.ProductId == request.ProductId))
-                throw new Exception($"Can not find product ID = {request.ProductId}");
-
-            var query = from pd in _context.PropertyDetails
-                        join pdpd in _context.ProductDetailPropertyDetails on pd.PropertyDetailId equals pdpd.PropertyDetailId
-                        where pdpd.ProductId == request.ProductId
-                        group new
-                        {
-                            pd.PropertyDetailId,
-                            pdpd.ProductDetailId
-                        } by pdpd.ProductDetailId;
-            query = query.AsQueryable();
-            int dem = 0;
-            int productDetailId = 0;
-
-            foreach (var item in query)
+            using (var trans = _context.Database.BeginTransaction())
             {
-                dem = 0;
+                if (!_context.Products.Any(x => x.ProductId == request.ProductId))
+                    throw new Exception($"Can not find product ID = {request.ProductId}");
 
-                foreach (var subitem in item)
+                var query = from pd in _context.PropertyDetails
+                            join pdpd in _context.ProductDetailPropertyDetails on pd.PropertyDetailId equals pdpd.PropertyDetailId
+                            where pdpd.ProductId == request.ProductId
+                            group new
+                            {
+                                pd.PropertyDetailId,
+                                pdpd.ProductDetailId
+                            } by pdpd.ProductDetailId;
+                query = query.AsQueryable();
+                int dem = 0;
+                int productDetailId = 0;
+
+                foreach (var item in query)
                 {
-                    foreach (var propertyDetailId in request.PropertyDetailIds)
+                    dem = 0;
+
+                    foreach (var subitem in item)
                     {
-                        if (subitem.PropertyDetailId == propertyDetailId && request.PropertyDetailIds.Count == item.Count())
-                            dem++;
+                        foreach (var propertyDetailId in request.PropertyDetailIds)
+                        {
+                            if (subitem.PropertyDetailId == propertyDetailId && request.PropertyDetailIds.Count == item.Count())
+                                dem++;
+                        }
+                        if (dem == request.PropertyDetailIds.Count)
+                            productDetailId = subitem.ProductDetailId;
                     }
-                    if (dem == request.PropertyDetailIds.Count)
-                        productDetailId = subitem.ProductDetailId;
                 }
-            }
-            if (productDetailId == 0)
-                throw new Exception("Cannot find productDetailId. Check list of PropertyDetailId!");
+                if (productDetailId == 0)
+                    throw new Exception("Cannot find productDetailId. Check list of PropertyDetailId!");
 
-            var productDetail = await _context.ProductDetails.FindAsync(productDetailId);
+                var productDetail = await _context.ProductDetails.FindAsync(productDetailId);
 
-            if (productDetail == null)
-                throw new Exception($"Can not find ProductDetail with ID = {productDetailId}");
+                if (productDetail == null)
+                    throw new Exception($"Can not find ProductDetail with ID = {productDetailId}");
 
-            if (productDetail.Quantity == 0)
-                throw new Exception($"ProductDetail with ID = {productDetailId} out of stock!");
-            
-            if (productDetail.Quantity < request.Quantity)
-                throw new Exception($"ProductDetail with ID = {productDetailId} not enough quantity to sell!");
+                if (productDetail.Quantity == 0)
+                    throw new Exception($"ProductDetail with ID = {productDetailId} out of stock!");
 
-            productDetail.Quantity -= request.Quantity;
-            _context.ProductDetails.Update(productDetail);
+                if (productDetail.Quantity < request.Quantity)
+                    throw new Exception($"ProductDetail with ID = {productDetailId} not enough quantity to sell!");
 
-            //var parentProductDetail = new ProductDetail();
-            do
-            {
-                productDetail = await _context.ProductDetails.FindAsync(productDetail.ParentId);
-                productDetail.Quantity-= request.Quantity;
+                productDetail.Quantity -= request.Quantity;
                 _context.ProductDetails.Update(productDetail);
 
-            } while (productDetail.ParentId != null);
+                //var parentProductDetail = new ProductDetail();
+                do
+                {
+                    productDetail = await _context.ProductDetails.FindAsync(productDetail.ParentId);
+                    productDetail.Quantity -= request.Quantity;
+                    _context.ProductDetails.Update(productDetail);
 
+                } while (productDetail.ParentId != null);
 
-            return await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return result;
+            }
+
         }
 
         public async Task<int> UpdateQuantity(ProductDetailRequest request)
         {
-            if (!_context.Products.Any(x => x.ProductId == request.ProductId))
-                throw new Exception($"Can not find product ID = {request.ProductId}");
-
-            var query = from pd in _context.PropertyDetails
-                        join pdpd in _context.ProductDetailPropertyDetails on pd.PropertyDetailId equals pdpd.PropertyDetailId
-                        where pdpd.ProductId == request.ProductId
-                        group new
-                        {
-                            pd.PropertyDetailId,
-                            pdpd.ProductDetailId
-                        } by pdpd.ProductDetailId;
-
-            //query = query.AsQueryable();
-
-            int dem = 0;
-            int productDetailId = 0;
-
-            foreach (var item in query)
+            using (var trans = _context.Database.BeginTransaction())
             {
-                dem = 0;
+                if (!_context.Products.Any(x => x.ProductId == request.ProductId))
+                    throw new Exception($"Can not find product ID = {request.ProductId}");
 
-                foreach (var subitem in item)
+                var query = from pd in _context.PropertyDetails
+                            join pdpd in _context.ProductDetailPropertyDetails on pd.PropertyDetailId equals pdpd.PropertyDetailId
+                            where pdpd.ProductId == request.ProductId
+                            group new
+                            {
+                                pd.PropertyDetailId,
+                                pdpd.ProductDetailId
+                            } by pdpd.ProductDetailId;
+
+                int dem = 0;
+                int productDetailId = 0;
+
+                foreach (var item in query)
                 {
-                    foreach (var propertyDetailId in request.PropertyDetailIds)
+                    dem = 0;
+
+                    foreach (var subitem in item)
                     {
-                        if (subitem.PropertyDetailId == propertyDetailId && request.PropertyDetailIds.Count == item.Count())
-                            dem++;
+                        foreach (var propertyDetailId in request.PropertyDetailIds)
+                        {
+                            if (subitem.PropertyDetailId == propertyDetailId && request.PropertyDetailIds.Count == item.Count())
+                                dem++;
+                        }
+                        if (dem == request.PropertyDetailIds.Count)
+                            productDetailId = subitem.ProductDetailId;
                     }
-                    if (dem == request.PropertyDetailIds.Count)
-                        productDetailId = subitem.ProductDetailId;
                 }
-            }
-            if (productDetailId == 0)
-                throw new Exception("Cannot find productDetailId. Check list of PropertyDetailId!");
+                if (productDetailId == 0)
+                    throw new Exception("Cannot find productDetailId. Check list of PropertyDetailId!");
 
-            var productDetail = await _context.ProductDetails.FindAsync(productDetailId);
+                var productDetail = await _context.ProductDetails.FindAsync(productDetailId);
 
-            if (productDetail == null)
-                throw new Exception($"Can not find ProductDetail with ID = {productDetailId}");
+                if (productDetail == null)
+                    throw new Exception($"Can not find ProductDetail with ID = {productDetailId}");
 
-            int range = request.Quantity - productDetail.Quantity;
-            productDetail.Quantity = request.Quantity;
-            _context.ProductDetails.Update(productDetail);
-
-            do
-            {
-                productDetail = await _context.ProductDetails.FindAsync(productDetail.ParentId);
-                productDetail.Quantity += range;
+                int range = request.Quantity - productDetail.Quantity;
+                productDetail.Quantity = request.Quantity;
                 _context.ProductDetails.Update(productDetail);
 
-            } while (productDetail.ParentId != null);
+                do
+                {
+                    productDetail = await _context.ProductDetails.FindAsync(productDetail.ParentId);
+                    productDetail.Quantity += range;
+                    _context.ProductDetails.Update(productDetail);
 
+                } while (productDetail.ParentId != null);
 
-            return await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return result;
+            }
+
         }
 
-        public async Task<IEnumerable<ProductDetail>> GetProductDetails()
+        public async Task<PageResult<ProductDetail>> GetProductDetails(ProductPagingRequest request)
         {
-            var parentProductDetails = _context.ProductDetails.Where(x => x.ParentId != null).ToList();
-
             var productDetails = new List<ProductDetail>();
 
-            if (parentProductDetails.Count() > 0)
-                foreach (var item in parentProductDetails)
+            var parentProductDetails = _context.ProductDetails.Where(x => x.ParentId != null);
+
+            if(!String.IsNullOrEmpty(request.keyWord))
+                parentProductDetails = parentProductDetails.Where(x=>x.ProductDetailName.Contains(request.keyWord));
+
+            if(request.MinPrice.HasValue)
+                parentProductDetails = parentProductDetails.Where(x => x.Price>= request.MinPrice);
+
+            if (request.MaxPrice.HasValue)
+                parentProductDetails = parentProductDetails.Where(x => x.Price <= request.MaxPrice);
+
+            var lst = parentProductDetails.ToList();
+
+            if (lst.Count() > 0)
+                foreach (var item in lst)
                 {
-                    var pd = parentProductDetails.Find(x => x.ParentId == item.ProductDetailId);
+                    var pd = lst.Find(x => x.ParentId == item.ProductDetailId);
+
                     if (pd == null)
                     {
                         productDetails.Add(item);
                     }
                 }
 
-            return productDetails;
+            int totalRecord = productDetails.Count();
+
+            int totalPage = (productDetails.Count() % request.PageSize > 0) ? productDetails.Count() / request.PageSize + 1 : productDetails.Count() / request.PageSize;
+
+            productDetails = productDetails.Skip(request.PageSize * (request.PageIndex - 1)).Take(request.PageSize).ToList();
+
+            var pageResult = new PageResult<ProductDetail>()
+            {
+                Data = productDetails,
+                TotalPage = totalPage,
+                TotalRecord = totalRecord,
+            };
+            
+            return pageResult;
         }
     }
 }
