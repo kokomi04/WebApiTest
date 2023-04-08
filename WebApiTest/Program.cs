@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApiTest.EF;
+using WebApiTest.Entities;
 using WebApiTest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,12 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson(
 
 // Life cycle DI: AddSingleton(), AddTransient(), AddScoped()
 builder.Services.AddTransient<IProductServices, ProductServices>();
+//builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
+//builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+//builder.Services.AddTransient<RoleManager<IdentityRole>, RoleManager<IdentityRole>>();
+
+//builder.Services.AddTransient<IRoleService, RoleService>();
+//builder.Services.AddTransient<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
