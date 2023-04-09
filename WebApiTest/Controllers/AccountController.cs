@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApiTest.Entities;
+using WebApiTest.Services;
+using WebApiTest.ViewModels;
 
 namespace WebApiTest.Controllers
 {
@@ -9,15 +11,39 @@ namespace WebApiTest.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<AppUser> userManager;
-        private readonly SignInManager<AppUser> signInManager;
-        private readonly IConfiguration configuration;
+        private readonly IAccountServices _services;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IConfiguration configuration)
+        public AccountController(IAccountServices services)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.configuration = configuration;
+            _services = services;
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(SignInRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _services.Login(request);
+            if(result.ResultObj == null)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register(SignUpRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _services.Register(request);
+            if (!result.Succeeded)
+            {
+                return Unauthorized();
+            }
+            return Ok(result.Succeeded);
         }
     }
 }

@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApiTest.EF
 {
-    public class MyDbContext : DbContext
+    public class MyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
 
         public MyDbContext(DbContextOptions options) : base(options)
